@@ -6,32 +6,47 @@
  */
 import { HTMLStencilElement, JSXBase } from "@stencil/core/internal";
 export namespace Components {
-    interface MyComponent {
+    interface ParrotExample {
+    }
+    interface PartyParrot {
+        "storageId"?: string;
     }
 }
 declare global {
-    interface HTMLMyComponentElement extends Components.MyComponent, HTMLStencilElement {
+    interface HTMLParrotExampleElement extends Components.ParrotExample, HTMLStencilElement {
     }
-    var HTMLMyComponentElement: {
-        prototype: HTMLMyComponentElement;
-        new (): HTMLMyComponentElement;
+    var HTMLParrotExampleElement: {
+        prototype: HTMLParrotExampleElement;
+        new (): HTMLParrotExampleElement;
+    };
+    interface HTMLPartyParrotElement extends Components.PartyParrot, HTMLStencilElement {
+    }
+    var HTMLPartyParrotElement: {
+        prototype: HTMLPartyParrotElement;
+        new (): HTMLPartyParrotElement;
     };
     interface HTMLElementTagNameMap {
-        "my-component": HTMLMyComponentElement;
+        "parrot-example": HTMLParrotExampleElement;
+        "party-parrot": HTMLPartyParrotElement;
     }
 }
 declare namespace LocalJSX {
-    interface MyComponent {
+    interface ParrotExample {
+    }
+    interface PartyParrot {
+        "storageId"?: string;
     }
     interface IntrinsicElements {
-        "my-component": MyComponent;
+        "parrot-example": ParrotExample;
+        "party-parrot": PartyParrot;
     }
 }
 export { LocalJSX as JSX };
 declare module "@stencil/core" {
     export namespace JSX {
         interface IntrinsicElements {
-            "my-component": LocalJSX.MyComponent & JSXBase.HTMLAttributes<HTMLMyComponentElement>;
+            "parrot-example": LocalJSX.ParrotExample & JSXBase.HTMLAttributes<HTMLParrotExampleElement>;
+            "party-parrot": LocalJSX.PartyParrot & JSXBase.HTMLAttributes<HTMLPartyParrotElement>;
         }
     }
 }

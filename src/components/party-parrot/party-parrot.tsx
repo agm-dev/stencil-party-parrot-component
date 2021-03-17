@@ -1,16 +1,24 @@
-import { Component, h, Host, State } from '@stencil/core';
+import { Component, h, Host, State, Prop } from '@stencil/core';
+
+const DEFAULT_DURATION = 500;
+const STORAGE_PREFIX = "party-parrot";
 
 @Component({
-  tag: 'my-component',
-  styleUrl: 'my-component.css',
+  tag: 'party-parrot',
+  styleUrl: 'party-parrot.css',
   shadow: true,
 })
-export class MyComponent {
-  @State() private value: string = "500"
-  @State() private duration: number = 500
+export class PartyParrot {
+  @Prop() readonly storageId?: string
+  @State() private value: string = `${DEFAULT_DURATION}`
+  @State() private duration: number = DEFAULT_DURATION
   @State() private durationSelectorVisible: boolean = false
 
   private timeout?: any
+
+  componentWillLoad(): void {
+    this.setDuration();
+  }
 
   render() {
     return (
@@ -84,6 +92,10 @@ export class MyComponent {
     this.value = value
     this.duration = Number(value)
     this.setVisibilityExpiration()
+
+    if (this.storageId) {
+      this.saveDuration()
+    }
   }
 
   private onParrotClickHandler() {
@@ -95,5 +107,41 @@ export class MyComponent {
 
   private setVisibilityExpiration() {
     this.timeout = setTimeout(() => (this.durationSelectorVisible = false), 3 * 1000)
+  }
+
+  private saveDuration() {
+    saveIntoLocalStorage(`${STORAGE_PREFIX}-${this.storageId}`, this.duration);
+  }
+
+  private setDuration() {
+    if (!this.storageId) {
+      return;
+    }
+
+    const duration = getFromLocalStorage(`${STORAGE_PREFIX}-${this.storageId}`);
+    if (duration) {
+      this.value = `${duration}`;
+      this.duration = Number(duration);
+    }
+  }
+}
+
+const saveIntoLocalStorage = (key: string, value: number): void => {
+  try {
+    localStorage.setItem(key, JSON.stringify(value))
+  } catch (error) {
+    console.error(`[${STORAGE_PREFIX}] error on saving ${key} into local storage`, error);
+  }
+}
+
+const getFromLocalStorage = (key: string) => {
+  try {
+    const rawData = localStorage.getItem(key);
+    if (rawData) {
+      return JSON.parse(rawData);
+    }
+    return
+  } catch (error) {
+    console.error(`[${STORAGE_PREFIX}] error on reading ${key} from local storage`, error);
   }
 }
