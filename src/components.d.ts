@@ -9,6 +9,9 @@ export namespace Components {
     interface ParrotExample {
     }
     interface PartyParrot {
+        "maxRange": number;
+        "minRange": number;
+        "rangeSelectorExpirationMs": number;
         "storageId"?: string;
     }
 }
@@ -34,6 +37,9 @@ declare namespace LocalJSX {
     interface ParrotExample {
     }
     interface PartyParrot {
+        "maxRange"?: number;
+        "minRange"?: number;
+        "rangeSelectorExpirationMs"?: number;
         "storageId"?: string;
     }
     interface IntrinsicElements {

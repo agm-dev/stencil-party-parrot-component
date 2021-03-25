@@ -2,6 +2,9 @@ import { Component, h, Host, State, Prop } from '@stencil/core';
 
 const DEFAULT_DURATION = 500;
 const STORAGE_PREFIX = "party-parrot";
+const INPUT_RANGE_MIN = 200;
+const INPUT_RANGE_MAX = 2000;
+const RANGE_SELECTOR_EXPIRATION_MS = 3 * 1000;
 
 @Component({
   tag: 'party-parrot',
@@ -10,6 +13,10 @@ const STORAGE_PREFIX = "party-parrot";
 })
 export class PartyParrot {
   @Prop() readonly storageId?: string
+  @Prop() readonly minRange: number = INPUT_RANGE_MIN
+  @Prop() readonly maxRange: number = INPUT_RANGE_MAX
+  @Prop() readonly rangeSelectorExpirationMs: number = RANGE_SELECTOR_EXPIRATION_MS
+
   @State() private value: string = `${DEFAULT_DURATION}`
   @State() private duration: number = DEFAULT_DURATION
   @State() private durationSelectorVisible: boolean = false
@@ -80,7 +87,7 @@ export class PartyParrot {
                 </ellipse>
             </svg>
             {this.durationSelectorVisible && (
-              <input type="range" min="200" max="2000" value={this.value} step="1" id="animationDuration" onChange={e => this.updateDuration((e.target as HTMLInputElement).value)} onInput={e => this.updateDuration((e.target as HTMLInputElement).value)}/>
+              <input type="range" min={`${this.minRange}`} max={`${this.maxRange}`} value={this.value} step="1" id="animationDuration" onChange={e => this.updateDuration((e.target as HTMLInputElement).value)} onInput={e => this.updateDuration((e.target as HTMLInputElement).value)}/>
             )}
         </div>
       </Host>
@@ -89,8 +96,18 @@ export class PartyParrot {
 
   private updateDuration(value: string) {
     clearInterval(this.timeout)
+
+    const newValue = rangeConversor({
+      value: Number(value),
+      oldMin: this.minRange,
+      oldMax: this.maxRange,
+      newMin: this.maxRange,
+      newMax: this.minRange,
+    });
+
     this.value = value
-    this.duration = Number(value)
+    this.duration = Number(newValue)
+
     this.setVisibilityExpiration()
 
     if (this.storageId) {
@@ -99,6 +116,7 @@ export class PartyParrot {
   }
 
   private onParrotClickHandler() {
+    clearInterval(this.timeout)
     this.durationSelectorVisible = !this.durationSelectorVisible
     if (this.durationSelectorVisible) {
       this.setVisibilityExpiration()
@@ -106,7 +124,7 @@ export class PartyParrot {
   }
 
   private setVisibilityExpiration() {
-    this.timeout = setTimeout(() => (this.durationSelectorVisible = false), 3 * 1000)
+    this.timeout = setTimeout(() => (this.durationSelectorVisible = false), this.rangeSelectorExpirationMs)
   }
 
   private saveDuration() {
@@ -144,4 +162,22 @@ const getFromLocalStorage = (key: string) => {
   } catch (error) {
     console.error(`[${STORAGE_PREFIX}] error on reading ${key} from local storage`, error);
   }
+}
+
+const rangeConversor = ({
+  value,
+  oldMax,
+  oldMin,
+  newMax,
+  newMin,
+}: {
+  value: number,
+  oldMax: number,
+  oldMin: number,
+  newMax: number,
+  newMin: number,
+}) => {
+  const oldRange = oldMax - oldMin;
+  const newRange = newMax - newMin;
+  return (((value - oldMin) * newRange) / oldRange) + newMin;
 }
