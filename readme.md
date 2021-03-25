@@ -15,7 +15,7 @@ Stencil component which allows to include `<party-parrot />` component in your a
 Add the package:
 
 ```bash
-npm i -s stencil-party-parrot
+npm i -s @agm-dev/party-parrot-component
 ```
 
 ## Usage
